@@ -46,13 +46,14 @@ for i, episode in enumerate(ds.take(5)):
         plt.figure()
         plt.imshow(image_strip)
         plt.title(caption)
+        plt.savefig('vis.png')
 
 # visualize action and state statistics
 actions, states = [], []
 for episode in tqdm.tqdm(ds.take(500)):
     for step in episode['steps']:
         actions.append(step['action'].numpy())
-        states.append(step['observation']['state'].numpy())
+        states.append(np.zeros(1))
 actions = np.array(actions)
 states = np.array(states)
 action_mean = actions.mean(0)
