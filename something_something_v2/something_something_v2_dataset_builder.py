@@ -19,19 +19,23 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
         # Load all frames from the video
         video_frames = imageio.mimread(video_path)
 
-        # Center crop each frame to a 4:3 aspect ratio, horizontally to 320px
+        # Center crop each frame to a square aspect ratio
+        height = video_frames[0].shape[0]
         width = video_frames[0].shape[1]
-        if width > 320:
-            # Center crop horizontally to 320
+        
+        # Determine the smaller dimension to crop to a square
+        square_size = min(height, width)
+        
+        if width > square_size:
+            # Center crop horizontally to square size
             video_frames = [
-                frame[:, (width - 320) // 2: (width + 320) // 2]
+                frame[:, (width - square_size) // 2: (width + square_size) // 2]
                 for frame in video_frames
             ]
-        elif width < 320:
-            # Center crop vertically to maintain the 4:3 aspect ratio
-            desired_height = int(np.round(3 / 4 * width))
+        elif height > square_size:
+            # Center crop vertically to square size
             video_frames = [
-                frame[(240 - desired_height) // 2: (240 + desired_height) // 2, :]
+                frame[(height - square_size) // 2: (height + square_size) // 2, :]
                 for frame in video_frames
             ]
 
