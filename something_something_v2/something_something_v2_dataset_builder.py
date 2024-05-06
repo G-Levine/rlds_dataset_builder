@@ -35,9 +35,9 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
                 for frame in video_frames
             ]
 
-        # Resize each frame to 240x240
+        # Resize each frame to 128x128
         video_frames = [
-            tf.image.resize_with_pad(frame, 240, 240).numpy().astype(np.uint8)
+            tf.image.resize_with_pad(frame, 128, 128).numpy().astype(np.uint8)
             for frame in video_frames
         ]
 
@@ -88,9 +88,9 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
                 'steps': tfds.features.Dataset({
                     'observation': tfds.features.FeaturesDict({
                         'image': tfds.features.Image(
-                            shape=(240, 240, 3),
+                            shape=(128, 128, 3),
                             dtype=np.uint8,
-                            encoding_format='png',
+                            encoding_format='jpeg',
                             doc='Main camera RGB observation.',
                         ),
                     }),
@@ -114,11 +114,26 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
         """Define file paths for data splits."""
         base_path = os.path.expanduser('~/20bn-something-something-v2/')
         labels_path = os.path.expanduser('~/labels/')
+        filter_labels_path = os.path.join(os.path.dirname(__file__), 'labels_filtered.json')
 
+        with open(filter_labels_path, "r") as f:
+            filter_labels = set(json.load(f).keys())
+        
         with open(os.path.join(labels_path, 'train.json'), 'r') as f:
             train_annotations = json.load(f)
         with open(os.path.join(labels_path, 'validation.json'), 'r') as f:
             val_annotations = json.load(f)
+
+        train_annotations = [
+            x
+            for x in train_annotations
+            if x["template"].replace("[", "").replace("]", "") in filter_labels
+        ]
+        val_annotations = [
+            x
+            for x in val_annotations
+            if x["template"].replace("[", "").replace("]", "") in filter_labels
+        ]
 
         # Format to have paths and labels
         train_paths = [
