@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+example_dataset/__init__.py
+example_dataset/conversion_utils.py
+example_dataset/create_example_data.py
+example_dataset/create_example_data_1.py
+example_dataset/example_dataset_dataset_builder.py
+example_dataset.egg-info/PKG-INFO
+example_dataset.egg-info/SOURCES.txt
+example_dataset.egg-info/dependency_links.txt
+example_dataset.egg-info/top_level.txt
