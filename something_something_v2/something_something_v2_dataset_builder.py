@@ -15,7 +15,7 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
         """Parses an episode from a single video file."""
         video_path = item['path']
         language_instruction = item['lang']
-        action = item['action']
+        actions = item['actions']
 
         # Load all frames from the video
         video_frames = imageio.mimread(video_path)
@@ -49,8 +49,9 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
         # Initialize an empty list to collect the steps
         steps = []
 
-        for frame in video_frames:
-            # Construct the action vector (all zeros)
+        for i, frame in enumerate(video_frames):
+            # Construct the action vector
+            action_vector = np.zeros((16,), dtype=np.float32) if not actions else np.array(actions[i])
 
             # Create a dictionary representing a single step
             step_data = {
@@ -151,11 +152,11 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
 
         # Format to have paths and labels
         train_paths = [
-            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'action': np.zeros((16,), dtype=np.float32) if not train_actions else train_actions[x['id']]}
+            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'actions': None if not train_actions else train_actions[x['id']]}
             for x in train_annotations
         ]
         val_paths = [
-            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'action': np.zeros((16,), dtype=np.float32) if not val_actions else val_actions[x['id']]}
+            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'actions': None if not val_actions else val_actions[x['id']]}
             for x in val_annotations
         ]
 
