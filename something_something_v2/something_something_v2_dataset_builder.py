@@ -15,6 +15,7 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
         """Parses an episode from a single video file."""
         video_path = item['path']
         language_instruction = item['lang']
+        action = item['action']
 
         # Load all frames from the video
         video_frames = imageio.mimread(video_path)
@@ -50,7 +51,6 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
 
         for frame in video_frames:
             # Construct the action vector (all zeros)
-            action_vector = np.zeros((16,), dtype=np.float32)
 
             # Create a dictionary representing a single step
             step_data = {
@@ -101,7 +101,7 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
                     'action': tfds.features.Tensor(
                         shape=(16,),
                         dtype=np.float32,
-                        doc='Placeholder action vector of zeros.',
+                        doc='Latent actions.',
                     ),
                     'language_instruction': tfds.features.Text(
                         doc='Language Instruction.'
@@ -118,6 +118,7 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
         """Define file paths for data splits."""
         base_path = os.path.expanduser('~/20bn-something-something-v2/')
         labels_path = os.path.expanduser('~/labels/')
+        actions_path = os.path.expanduser('~/')
         filter_labels_path = os.path.join(os.path.dirname(__file__), 'labels_filtered.json')
 
         with open(filter_labels_path, "r") as f:
@@ -127,7 +128,16 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
             train_annotations = json.load(f)
         with open(os.path.join(labels_path, 'validation.json'), 'r') as f:
             val_annotations = json.load(f)
-
+        train_actions = None
+        val_actions = None
+        try:
+            with open(os.path.join(actions_path, 'train_actions.json'), 'r') as f:
+                train_actions = json.load(f)
+            with open(os.path.join(actions_path, 'val_actions.json'), 'r') as f:
+                val_actions = json.load(f)
+        except FileNotFoundError:
+            pass
+            
         train_annotations = [
             x
             for x in train_annotations
@@ -141,11 +151,11 @@ class SomethingSomethingV2Dataset(MultiThreadedDatasetBuilder):
 
         # Format to have paths and labels
         train_paths = [
-            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label']}
+            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'action': np.zeros((16,), dtype=np.float32) if not train_actions else train_actions[x['id']]}
             for x in train_annotations
         ]
         val_paths = [
-            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label']}
+            {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'action': np.zeros((16,), dtype=np.float32) if not val_actions else val_actions[x['id']]}
             for x in val_annotations
         ]
 
