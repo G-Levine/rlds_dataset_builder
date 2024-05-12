@@ -2,7 +2,7 @@ name: rlds_env
 channels:
   - conda-forge
 dependencies:
-  - imageio[ffmpeg]
+#  - imageio[ffmpeg]
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_gnu
   - ca-certificates=2023.7.22=hbcca054_0
