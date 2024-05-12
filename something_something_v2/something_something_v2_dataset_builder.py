@@ -153,11 +153,11 @@ class SomethingSomethingV2(MultiThreadedDatasetBuilder):
         # Format to have paths and labels
         train_paths = [
             {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'actions': None if not train_actions else train_actions[x['id']]}
-            for x in train_annotations
+            for x in train_annotations if not train_actions or len(train_actions[x['id']]) > 0
         ]
         val_paths = [
             {'path': os.path.join(base_path, f"{x['id']}.webm"), 'lang': x['label'], 'actions': None if not val_actions else val_actions[x['id']]}
-            for x in val_annotations
+            for x in val_annotations if not val_actions or len(val_actions[x['id']]) > 0
         ]
 
         return {
