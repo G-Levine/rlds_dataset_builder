@@ -51,7 +51,7 @@ def _generate_examples(paths) -> Iterator[Tuple[str, Any]]:
 
         for i, frame in enumerate(video_frames):
             # Construct the action vector
-            action_vector = np.zeros((16,), dtype=np.float32) if not actions else np.array(actions[i])
+            action_vector = np.zeros((16,), dtype=np.float32) if not actions else np.array(actions[i]).astype(np.float32)
 
             # Create a dictionary representing a single step
             step_data = {
